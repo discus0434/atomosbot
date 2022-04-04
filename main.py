@@ -9,9 +9,9 @@ from linebot.models import MessageEvent, TextMessage, TextSendMessage
 app = Flask(__name__)
 
 # 環境変数取得
-# LINE Developersで設定されているチャネルアクセストークンとチャネルシークレットを設定
 MY_CHANNEL_ACCESS_TOKEN = os.environ["CHANNEL_ACCESS_TOKEN"]
 MY_CHANNEL_SECRET = os.environ["CHANNEL_SECRET"]
+USER_ID = os.environ["USER_ID"]
 
 line_bot_api = LineBotApi(MY_CHANNEL_ACCESS_TOKEN)
 handler = WebhookHandler(MY_CHANNEL_SECRET)
@@ -19,35 +19,29 @@ handler = WebhookHandler(MY_CHANNEL_SECRET)
 
 @app.route("/callback", methods=["POST"])
 def callback():
-    """ Webhookからのリクエストの正当性をチェックし、ハンドラに応答処理を移譲する """
+    """Webhookからのリクエストの正当性をチェックし、handlerに応答処理を移譲する"""
 
-    # リクエストヘッダーから署名検証のための値を取得します。
     signature = request.headers["X-Line-Signature"]
 
-    # リクエストボディを取得します。
+    # get request body
     body = request.get_data(as_text=True)
     app.logger.info("Request body: " + body)
 
     # handle webhook body
     try:
         handler.handle(body, signature)
-    # 署名検証で失敗した場合、例外を出す。
     except InvalidSignatureError:
         app.logger.warn("Invalid Signature.")
         abort(400)
-    # handleの処理を終えればOK
+
     return "OK"
 
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
-    """
-    LINEへのテキストメッセージに対して応答を返す
-
-    Args:
-      event (Any): MessageEvent
-        LINEに送信されたメッセージイベント
-    """
+    if "気圧" in event.message.text:
+        replyText = "登録しました"
+        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=replyText))
 
     line_bot_api.reply_message(
         event.reply_token, TextSendMessage(text=event.message.text)
