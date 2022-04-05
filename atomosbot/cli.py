@@ -52,13 +52,13 @@ def handle_message(event) -> None:
     """
     try:
         # 初期化
-        forecast = ForecastAtomosPhenom(address=event.message.text)
+        forecast = ForecastAtomosPhenom(location=event.message.text)
 
         # メッセージを作成
         messages = forecast.make_linebot_messages()
     except Exception:
         # 例外が発生した場合はプロットを作成せず代わりのテキストを返す
-        messages = TextSendMessage(text="住所や都市名を入力してください。")
+        messages = TextSendMessage(text="都市名をローマ字で入力してください。")
 
     line_bot_api.reply_message(event.reply_token, messages=messages)
 

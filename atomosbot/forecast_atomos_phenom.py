@@ -3,7 +3,7 @@ import os
 from pathlib import Path
 import sys
 import json
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Tuple
 import datetime
 from datetime import datetime as dt
 
@@ -14,7 +14,6 @@ import plotly.graph_objects as go
 sys.path.append(Path(__file__).resolve().parents[1].as_posix())
 
 from utils.api_wrapper import get_api_data
-from utils.lonlat_from_address import get_lon_lat_from_address
 from utils.upload_image import upload_image_to_gyazo
 
 # ローカルでのみ使用する環境変数の設定
@@ -27,12 +26,12 @@ except Exception:
 
 
 class ForecastAtomosPhenom:
-    def __init__(self, address: str = "三鷹市", duration: int = 30):
+    def __init__(self, location: str = "Mitaka", duration: int = 30):
         """コンストラクタ
 
         Args:
-            address (str, optional): 気象情報を取得する地名
-                Defaults to "三鷹市".
+            location (str, optional): 気象情報を取得する地名
+                Defaults to "Mitaka".
             duration (int, optional): 気象情報を設定した時間(<48時間後)まで
                 表示する Defaults to 30.
         """
@@ -45,7 +44,7 @@ class ForecastAtomosPhenom:
         self.save_plot_path = "plot.jpeg"
 
         # 取得対象を指定
-        self.address = address
+        self.location = location
         self.duration = duration
 
         # 天気予報を取得し、タイムスタンプで取得された日時をdatetime型に変換
@@ -99,6 +98,18 @@ class ForecastAtomosPhenom:
 
         return messages
 
+    def get_lon_lat(self) -> Tuple[float, float]:
+        """都市名から経度・緯度を取得
+
+        Returns:
+            Tuple[float, float]: {self.location}の経度・緯度
+        """
+        url = "https://api.openweathermap.org/data/2.5/weather"
+        params = {"q": self.location, "appid": self.openweather_api_key, "lang": "ja"}
+        result = get_api_data(url=url, params=params)
+
+        return result["coord"]["lon"], result["coord"]["lat"]
+
     def get_forecast(self) -> Dict[str, Any]:
         """天気予報をOpenWeathermap.orgから取得
 
@@ -108,8 +119,8 @@ class ForecastAtomosPhenom:
         # URL
         url = "http://api.openweathermap.org/data/2.5/onecall"
 
-        # アドレスを緯度・経度に変換
-        lon, lat = get_lon_lat_from_address(self.address)
+        # 都市名を緯度・経度に変換
+        lon, lat = self.get_lon_lat()
 
         params = {
             # 経度
@@ -177,7 +188,7 @@ class ForecastAtomosPhenom:
         fig.update_layout(
             dict(
                 font=dict(family="Kiwi Maru", size=20),
-                title=f"今日から明日にかけての{self.address}の気象情報",
+                title=f"今日から明日にかけての{self.location}の気象情報",
                 width=1300,
                 height=1000,
                 xaxis=dict(
@@ -258,7 +269,7 @@ class ForecastAtomosPhenom:
         # メッセージのテキスト部分を記述
         alarm_text = (
             f"{dt.strftime(dt.today(), '%Y年%-m月%-d日(%a)')}\n"
-            + f"{self.address}の天気情報です。\n\n"
+            + f"{self.location}の天気情報です。\n\n"
             + f"今度24時間の最高気温は{max(self.temp[:24])}度、\n"
             + f"最低気温は{min(self.temp[:24])}度です。\n\n"
             "気圧が変動するのは以下の時間帯です。\n\n"
