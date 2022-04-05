@@ -58,7 +58,7 @@ def handle_message(event) -> None:
         messages = forecast.make_linebot_messages()
     except Exception:
         # 例外が発生した場合はプロットを作成せず代わりのテキストを返す
-        messages = TextSendMessage(text="都市名をローマ字で入力してください。")
+        messages = TextSendMessage(text="都市名もしくは住所を入力してください。")
 
     line_bot_api.reply_message(event.reply_token, messages=messages)
 
