@@ -1,4 +1,5 @@
 """気象情報を取得し、データを加工してLINEに送信"""
+import locale
 import os
 from pathlib import Path
 import sys
@@ -36,6 +37,9 @@ class ForecastAtomosPhenom:
             duration (int, optional): 気象情報を設定した時間(<48時間後)まで
                 表示する Defaults to 30.
         """
+        # ロケールを日本語に変更
+        locale.setlocale(locale.LC_TIME, 'ja_JP.UTF-8')
+
         # 環境変数
         self.user_id = os.environ["USER_ID"]
         self.openweather_api_key = os.environ["OPENWEATHER_API_KEY"]
