@@ -28,12 +28,12 @@ except Exception:
 
 
 class ForecastAtomosPhenom:
-    def __init__(self, address: str = "Mitaka", duration: int = 30):
+    def __init__(self, address: str = "三鷹市", duration: int = 30):
         """コンストラクタ
 
         Args:
             address (str, optional): 気象情報を取得する地名
-                Defaults to "Mitaka".
+                Defaults to "三鷹市".
             duration (int, optional): 気象情報を設定した時間(<48時間後)まで
                 表示する Defaults to 30.
         """
