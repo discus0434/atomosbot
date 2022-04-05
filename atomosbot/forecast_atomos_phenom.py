@@ -38,7 +38,7 @@ class ForecastAtomosPhenom:
                 表示する Defaults to 30.
         """
         # ロケールを日本語に変更
-        locale.setlocale(locale.LC_TIME, "Japanese_Japan.UTF-8")
+        locale.setlocale(locale.LC_ALL, 'ja_JP.UTF-8')
 
         # 環境変数
         self.user_id = os.environ["USER_ID"]
