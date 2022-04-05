@@ -9,13 +9,13 @@ from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
 from linebot.models import MessageEvent, TextMessage, TextSendMessage, ImageSendMessage
 import plotly.graph_objects as go
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 
 
 class ForecastAirPressure:
     def __init__(self, location="MITAKA"):
 
-        load_dotenv(override=True)
+        # load_dotenv(override=True)
 
         self.channel_access_token = os.environ["CHANNEL_ACCESS_TOKEN"]
         self.channel_secret = os.environ["CHANNEL_SECRET"]
