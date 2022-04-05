@@ -1,1 +1,1 @@
-web: python air_pressure_bot
+web: python atomosbot

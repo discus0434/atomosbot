@@ -26,7 +26,7 @@ except Exception:
     pass
 
 
-class ForecastAirPressure:
+class ForecastAtomosPhenom:
     def __init__(self, address: str = "三鷹市", duration: int = 30):
         """コンストラクタ
 
@@ -72,13 +72,13 @@ class ForecastAirPressure:
         # 日時
         self.dates = [r[idx]["dt"] for idx in range(self.duration)]
         # 気圧
-        self.air_pressure = [r[idx]["pressure"] for idx in range(self.duration)]
+        self.atomos_phenomena = [r[idx]["pressure"] for idx in range(self.duration)]
         # 天気
         self.weather = [r[idx]["weather"][0]["main"] for idx in range(self.duration)]
 
         # 気圧が変動する時間帯を算出
         self.alarming_dates = self.calc_when_to_cautious_pressure_change(
-            dates=self.dates, air_pressure=self.air_pressure
+            dates=self.dates, atomos_phenomena=self.atomos_phenomena
         )
 
         # メッセージの画像部分（プロット）を作成・保存
@@ -144,7 +144,7 @@ class ForecastAirPressure:
 
         # 気圧の折れ線グラフ
         fig.add_trace(
-            go.Scatter(x=self.dates, y=self.air_pressure, mode="lines", name="気圧")
+            go.Scatter(x=self.dates, y=self.atomos_phenomena, mode="lines", name="気圧")
         )
 
         # 気温の折れ線グラフ
@@ -189,7 +189,10 @@ class ForecastAirPressure:
                 ),
                 yaxis=dict(
                     title="気圧[hPa]",
-                    range=(min(self.air_pressure) - 1, max(self.air_pressure) + 1),
+                    range=(
+                        min(self.atomos_phenomena) - 1,
+                        max(self.atomos_phenomena) + 1,
+                    ),
                     tickfont=dict(size=18),
                 ),
                 yaxis2=dict(
@@ -311,7 +314,7 @@ class ForecastAirPressure:
 
     @staticmethod
     def calc_when_to_cautious_pressure_change(
-        dates: List[datetime.datetime], air_pressure: List[int]
+        dates: List[datetime.datetime], atomos_phenomena: List[int]
     ) -> List[datetime.datetime]:
         """気圧が大きめに変動する時間帯を算出
 
@@ -321,18 +324,18 @@ class ForecastAirPressure:
 
         Args:
             dates (List[datetime.datetime]): 取得した気象情報の日時データ
-            air_pressure (List[int]): 取得した気象情報の気圧データ
+            atomos_phenomena (List[int]): 取得した気象情報の気圧データ
 
         Returns:
             List[datetime.datetime]: 気圧が大きめに変動する時間のリスト
         """
         alarming = []
-        for idx in range(len(air_pressure) - 3):
-            if abs(air_pressure[idx + 3] - air_pressure[idx]) > 1:
+        for idx in range(len(atomos_phenomena) - 3):
+            if abs(atomos_phenomena[idx + 3] - atomos_phenomena[idx]) > 1:
                 inc = 1
-                while (idx + 3 + inc < len(air_pressure)) and (
-                    abs(air_pressure[idx + 3 + inc] - air_pressure[idx])
-                    > abs(air_pressure[idx + 3 + inc - 1] - air_pressure[idx])
+                while (idx + 3 + inc < len(atomos_phenomena)) and (
+                    abs(atomos_phenomena[idx + 3 + inc] - atomos_phenomena[idx])
+                    > abs(atomos_phenomena[idx + 3 + inc - 1] - atomos_phenomena[idx])
                 ):
                     inc += 1
 
@@ -347,11 +350,11 @@ class ForecastAirPressure:
 
 if __name__ == "__main__":
     # 気象情報を取得
-    forecast_air_pressure = ForecastAirPressure()
+    forecast = ForecastAtomosPhenom()
 
     # メッセージを作成
-    messages = forecast_air_pressure.make_linebot_messages()
+    messages = forecast.make_linebot_messages()
 
     # メッセージを送信
     line_bot_api = LineBotApi(os.environ["CHANNEL_ACCESS_TOKEN"])
-    line_bot_api.push_message(forecast_air_pressure.user_id, messages=messages)
+    line_bot_api.push_message(forecast.user_id, messages=messages)
