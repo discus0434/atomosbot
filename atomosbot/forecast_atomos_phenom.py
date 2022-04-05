@@ -262,13 +262,13 @@ class ForecastAtomosPhenom:
             + f"{self.address}の天気情報です。\n\n"
             + f"今度24時間の最高気温は{max(self.temp[:24])}度、\n"
             + f"最低気温は{min(self.temp[:24])}度です。\n\n"
-            "気圧が変動するのは以下の時間帯です。\n"
+            "気圧が変動するのは以下の時間帯です。\n\n"
             + "".join(
                 "から".join(
                     list(
                         map(
                             lambda x: x.replace(x[:4], "今日")
-                            if alarm_text[0][0][:4] == x[:4]
+                            if alarm_list[0][0][:4] == x[:4]
                             else x.replace(x[:4], "明日"),
                             li,
                         )
@@ -277,6 +277,7 @@ class ForecastAtomosPhenom:
                 + "\n"
                 for li in alarm_list
             )
+            + "詳細は画像をご覧ください。"
         )
 
         return alarm_text
