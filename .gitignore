@@ -10,3 +10,4 @@
 
 # Compiled Python bytecode
 *.py[cod]
+*/.mypy_cache
