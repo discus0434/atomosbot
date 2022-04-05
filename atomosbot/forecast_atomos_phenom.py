@@ -42,8 +42,7 @@ class ForecastAtomosPhenom:
         self.gyazo_api_key = os.environ["GYAZO_API_KEY"]
 
         # プロットの出力先を指定
-        os.makedirs("./../exports", exist_ok=True)
-        self.save_plot_path = "./../exports/plot.jpeg"
+        self.save_plot_path = "plot.jpeg"
 
         # 取得対象を指定
         self.address = address
