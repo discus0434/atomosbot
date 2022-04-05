@@ -2,3 +2,4 @@ Flask==2.0.3
 line-bot-sdk==2.2.1
 plotly==5.6.0
 kaleido==0.2.1
+bs4==4.10.0

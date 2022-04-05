@@ -1,3 +1,4 @@
+"""LINE Botの基幹となる処理"""
 import os
 from argparse import ArgumentParser
 
@@ -6,19 +7,24 @@ from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
 from linebot.models import MessageEvent, TextMessage, TextSendMessage
 
+from forecast_air_pressure import ForecastAirPressure
+
+# ローカルでのみ使用する環境変数の設定
+try:
+    from dotenv import load_dotenv
+
+    load_dotenv(override=True)
+except Exception:
+    pass
+
 app = Flask(__name__)
 
-# 環境変数取得
-MY_CHANNEL_ACCESS_TOKEN = os.environ["CHANNEL_ACCESS_TOKEN"]
-MY_CHANNEL_SECRET = os.environ["CHANNEL_SECRET"]
-USER_ID = os.environ["USER_ID"]
-
-line_bot_api = LineBotApi(MY_CHANNEL_ACCESS_TOKEN)
-handler = WebhookHandler(MY_CHANNEL_SECRET)
+line_bot_api = LineBotApi(os.environ["CHANNEL_ACCESS_TOKEN"])
+handler = WebhookHandler(os.environ["CHANNEL_SECRET"])
 
 
 @app.route("/callback", methods=["POST"])
-def callback():
+def callback() -> str:
     """Webhookからのリクエストの正当性をチェックし、handlerに応答処理を移譲する"""
 
     signature = request.headers["X-Line-Signature"]
@@ -38,26 +44,40 @@ def callback():
 
 
 @handler.add(MessageEvent, message=TextMessage)
-def handle_message(event):
-    if "気圧" in event.message.text:
-        replyText = "登録しました"
-        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=replyText))
+def handle_message(event) -> None:
+    """返信メッセージを作成
 
-    line_bot_api.reply_message(
-        event.reply_token, TextSendMessage(text=event.message.text)
-    )
+    Args:
+        event (Any): ユーザーからのメッセージイベント
+    """
+    try:
+        # 初期化
+        forecast_air_pressure = ForecastAirPressure(address=event.message.text)
+
+        # メッセージを作成
+        messages = forecast_air_pressure.make_linebot_messages()
+    except Exception:
+        # 例外が発生した場合はプロットを作成せず代わりのテキストを返す
+        messages = TextSendMessage(text="住所や都市名を入力してください。")
+
+    line_bot_api.reply_message(event.reply_token, messages=messages)
 
 
-if __name__ == "__main__":
+def main() -> None:
+    # Usage Messageの作成
     arg_parser = ArgumentParser(
         usage="Usage: python " + __file__ + " [--port <port>] [--help]"
     )
-    # Herokuは環境変数PORTのポートで起動したWeb Appの起動を待ち受けるため、そのポート番号でApp起動する
+
+    # 環境変数PORTのと同じポート番号でAppを起動する
     arg_parser.add_argument(
         "-p", "--port", type=int, default=int(os.environ.get("PORT", 8000)), help="port"
     )
     arg_parser.add_argument("-d", "--debug", default=False, help="debug")
     arg_parser.add_argument("--host", default="0.0.0.0", help="host")
     options = arg_parser.parse_args()
-
     app.run(debug=options.debug, host=options.host, port=options.port)
+
+
+if __name__ == "__main__":
+    main()
