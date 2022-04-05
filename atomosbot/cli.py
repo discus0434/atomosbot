@@ -52,7 +52,7 @@ def handle_message(event) -> None:
     """
     try:
         # 初期化
-        forecast = ForecastAtomosPhenom(location=event.message.text)
+        forecast = ForecastAtomosPhenom(address=event.message.text)
 
         # メッセージを作成
         messages = forecast.make_linebot_messages()
