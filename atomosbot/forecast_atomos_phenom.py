@@ -176,7 +176,7 @@ class ForecastAtomosPhenom:
         # グラフの装飾
         fig.update_layout(
             dict(
-                font=dict(family="Noto Sans", size=20),
+                font=dict(family="Kiwi Maru", size=20),
                 title=f"今日から明日にかけての{self.address}の気象情報",
                 width=1300,
                 height=1000,
