@@ -1,1 +1,1 @@
-web: python air-pressure-bot
+web: python air_pressure_bot
