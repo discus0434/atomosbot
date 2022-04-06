@@ -1,5 +1,4 @@
 """気象情報を取得し、データを加工してLINEに送信"""
-import locale
 import os
 from pathlib import Path
 import sys
