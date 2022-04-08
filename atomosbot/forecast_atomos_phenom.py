@@ -27,7 +27,7 @@ except Exception:
 
 
 class ForecastAtomosPhenom:
-    def __init__(self, address: str = "三鷹市", duration: int = 30):
+    def __init__(self, address: str = "東京都三鷹市", duration: int = 30):
         """コンストラクタ
 
         Args:
