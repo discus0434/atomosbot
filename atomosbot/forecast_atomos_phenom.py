@@ -5,7 +5,7 @@ import sys
 import json
 from typing import Any, Dict, List
 import datetime
-from datetime import datetime as dt, timedelta
+from datetime import datetime as dt
 
 from linebot import LineBotApi
 from linebot.models import TextSendMessage, ImageSendMessage
@@ -312,9 +312,7 @@ class ForecastAtomosPhenom:
             Dict[str, Any]: 日時の型を変換したjsonファイル
         """
         for idx in range(len(res["hourly"])):
-            res["hourly"][idx]["dt"] = dt.fromtimestamp(
-                res["hourly"][idx]["dt"]
-            ) + timedelta(hours=9)
+            res["hourly"][idx]["dt"] = dt.fromtimestamp(res["hourly"][idx]["dt"])
 
         return res
 
