@@ -5,7 +5,7 @@ import sys
 import json
 from typing import Any, Dict, List
 import datetime
-from datetime import datetime as dt
+from datetime import datetime as dt, timedelta
 
 from linebot import LineBotApi
 from linebot.models import TextSendMessage, ImageSendMessage
@@ -36,6 +36,8 @@ class ForecastAtomosPhenom:
             duration (int, optional): 気象情報を設定した時間(<48時間後)まで
                 表示する Defaults to 30.
         """
+        # タイムゾーンを指定
+        self.jst = datetime.timezone(datetime.timedelta(hours=9), "JST")
 
         # 環境変数
         self.user_id = os.environ["USER_ID"]
@@ -86,7 +88,8 @@ class ForecastAtomosPhenom:
 
         # 作成したプロットをgyazoにアップロード
         response = upload_image_to_gyazo(
-            save_path=self.save_plot_path, api_key=self.gyazo_api_key,
+            save_path=self.save_plot_path,
+            api_key=self.gyazo_api_key,
         )
 
         # メッセージを作成
@@ -258,7 +261,7 @@ class ForecastAtomosPhenom:
 
         # メッセージのテキスト部分を記述
         alarm_text = (
-            f"{dt.strftime(dt.today(), '%Y年%-m月%-d日(%a)')}\n"
+            f"{(dt.strftime(datetime.datetime.now(self.jst), '%Y年%-m月%-d日(%a)'))}\n"
             + f"{self.address}の気象情報です。\n\n"
             + f"今度24時間の最高気温は{max(self.temp[:24])}度、\n"
             + f"最低気温は{min(self.temp[:24])}度です。\n\n"
@@ -286,13 +289,13 @@ class ForecastAtomosPhenom:
     def _validate(cur: datetime.datetime, pre: datetime.datetime) -> bool:
         """今の値が前の値と連続しているかどうか判別
 
-            Args:
-                cur (datetime.datetime): 現在の値
-                pre (datetime.datetime): 1つ前のインデックスの値
+        Args:
+            cur (datetime.datetime): 現在の値
+            pre (datetime.datetime): 1つ前のインデックスの値
 
-            Returns:
-                bool: 連続しているかどうか
-            """
+        Returns:
+            bool: 連続しているかどうか
+        """
         return cur == (pre + datetime.timedelta(seconds=3600))
 
     @staticmethod
@@ -309,7 +312,9 @@ class ForecastAtomosPhenom:
             Dict[str, Any]: 日時の型を変換したjsonファイル
         """
         for idx in range(len(res["hourly"])):
-            res["hourly"][idx]["dt"] = dt.fromtimestamp(res["hourly"][idx]["dt"])
+            res["hourly"][idx]["dt"] = dt.fromtimestamp(
+                res["hourly"][idx]["dt"]
+            ) + timedelta(hours=9)
 
         return res
 
@@ -332,7 +337,7 @@ class ForecastAtomosPhenom:
         """
         alarming = []
         for idx in range(len(atomos_phenomena) - 3):
-            if abs(atomos_phenomena[idx + 3] - atomos_phenomena[idx]) > 1:
+            if abs(atomos_phenomena[idx + 3] - atomos_phenomena[idx]) > 2:
                 inc = 1
                 while (idx + 3 + inc < len(atomos_phenomena)) and (
                     abs(atomos_phenomena[idx + 3 + inc] - atomos_phenomena[idx])
