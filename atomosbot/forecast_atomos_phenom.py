@@ -36,9 +36,6 @@ class ForecastAtomosPhenom:
             duration (int, optional): 気象情報を設定した時間(<48時間後)まで
                 表示する Defaults to 30.
         """
-        # タイムゾーンを指定
-        self.jst = datetime.timezone(datetime.timedelta(hours=9), "JST")
-
         # 環境変数
         self.user_id = os.environ["USER_ID"]
         self.openweather_api_key = os.environ["OPENWEATHER_API_KEY"]
@@ -261,7 +258,7 @@ class ForecastAtomosPhenom:
 
         # メッセージのテキスト部分を記述
         alarm_text = (
-            f"{(dt.strftime(datetime.datetime.now(self.jst), '%Y年%-m月%-d日(%a)'))}\n"
+            f"{(dt.strftime(datetime.datetime.now(), '%Y年%-m月%-d日(%a)'))}\n"
             + f"{self.address}の気象情報です。\n\n"
             + f"今度24時間の最高気温は{max(self.temp[:24])}度、\n"
             + f"最低気温は{min(self.temp[:24])}度です。\n\n"
