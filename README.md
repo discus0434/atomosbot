@@ -363,7 +363,6 @@ Webhook URLは以下のものを入力してください。
 
 > https:// <herokuで設定したアプリ名> .herokuapp.com/callback
 
-
 連携がうまくいくと、**Success**と表示されます。
 
 <p align="center">
