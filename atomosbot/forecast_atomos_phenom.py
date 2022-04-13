@@ -13,9 +13,7 @@ import plotly.graph_objects as go
 
 sys.path.append(Path(__file__).resolve().parents[1].as_posix())
 
-from utils.api_wrapper import get_api_data
-from utils.lonlat_from_address import get_lon_lat_from_address
-from utils.upload_image import upload_image_to_gyazo
+from utils import get_api_data, get_lon_lat_from_address, upload_image_to_gyazo
 
 # ローカルでのみ使用する環境変数の設定
 try:
@@ -27,12 +25,12 @@ except Exception:
 
 
 class ForecastAtomosPhenom:
-    def __init__(self, address: str = "東京都三鷹市", duration: int = 30):
+    def __init__(self, address: str = "東京都品川区", duration: int = 30):
         """コンストラクタ
 
         Args:
             address (str, optional): 気象情報を取得する地名
-                Defaults to "三鷹市".
+                Defaults to "東京都品川区".
             duration (int, optional): 気象情報を設定した時間(<48時間後)まで
                 表示する Defaults to 30.
         """
