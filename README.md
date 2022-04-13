@@ -376,7 +376,7 @@ Webhook URLは以下のものを入力してください。
 
 ## Run Tests
 
-LINEの設定画面から、
+LINE Developersのチャンネル設定画面から、
 
 **Messaging API > QR code**にあるQRコードをお手元のスマホのLINEから読み込み、友だち追加します。
 
