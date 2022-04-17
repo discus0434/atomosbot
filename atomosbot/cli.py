@@ -17,42 +17,58 @@ try:
 except Exception:
     pass
 
+# flaskオブジェクトを作成
 app = Flask(__name__)
 
+# 各クライアントライブラリのインスタンスを作成
 line_bot_api = LineBotApi(os.environ["CHANNEL_ACCESS_TOKEN"])
 handler = WebhookHandler(os.environ["CHANNEL_SECRET"])
 
 
 @app.route("/callback", methods=["POST"])
 def callback() -> str:
-    """Webhookからのリクエストの正当性をチェックし、handlerに応答処理を移譲する"""
+    """Webhookからのリクエストの正当性をチェックし、handlerに処理を渡す
 
+    /callbackにPOSTリクエストがあった場合、それが正当なLINEBotのWebhookからの
+    リクエストであるかどうかをチェックし、署名が正当であればhandlerに処理を渡します。
+
+    Returns
+    -------
+    str
+        例外が発生しなかった場合は"OK"を返します。
+    """
+
+    # リクエストヘッダーから署名検証のための値を取得
     signature = request.headers["X-Line-Signature"]
 
-    # get request body
+    # リクエストボディの取得
     body = request.get_data(as_text=True)
     app.logger.info("Request body: " + body)
 
-    # handle webhook body
     try:
+        # 署名を検証し、問題なければhandleに定義している関数を呼び出す
         handler.handle(body, signature)
     except InvalidSignatureError:
         app.logger.warn("Invalid Signature.")
         abort(400)
 
+    # 例外が発生せず、handlerの処理が終了すればOK
     return "OK"
 
 
+# addメソッドの引数にはイベントのモデルを入れる
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event) -> None:
     """返信メッセージを作成
 
-    Args:
-        event (Any): ユーザーからのメッセージイベント
+    Parameters
+    ----------
+    Any
+        ユーザーからのメッセージイベント
     """
     try:
-        # 初期化
-        forecast = ForecastAtomosPhenom(address=event.message.text)
+        # クラスオブジェクトを作成
+        forecast = ForecastAtomosPhenom(address=event.message.text, duration=30)
 
         # メッセージを作成
         messages = forecast.make_linebot_messages()

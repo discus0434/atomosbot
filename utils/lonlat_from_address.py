@@ -6,15 +6,20 @@ from bs4 import BeautifulSoup
 def get_lon_lat_from_address(address: str) -> Tuple[str, str]:
     """渡したアドレスの緯度・経度を返すメソッド
 
-    Args:
-        address(str): 任意のアドレス
+    Parameters
+    ----------
+    address : str
+        任意のアドレス
 
-    Returns:
-        Tuple[str, str]: 経度・緯度
+    Returns
+    -------
+    Tuple[str, str]
+        経度・緯度
 
-    Examples:
-        >>> get_lon_lat_from_address('東京都文京区本郷7-3-1')
-        ['35.712056', '139.762775']
+    Examples
+    --------
+    >>> get_lon_lat_from_address('東京都文京区本郷7-3-1')
+    ['35.712056', '139.762775']
     """
     url = "http://www.geocoding.jp/api/"
 

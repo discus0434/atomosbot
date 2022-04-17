@@ -3,7 +3,7 @@ import requests
 
 
 def get_api_data(url: str, params: Dict[str, Any]) -> Dict[str, Any]:
-    """APIを叩く際使用するWrapper関数
+    """APIを叩く際に使用するWrapper関数
 
     Args:
         url (str): URL

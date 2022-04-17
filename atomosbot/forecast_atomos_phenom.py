@@ -1,5 +1,6 @@
 """気象情報を取得し、データを加工してLINEに送信"""
 import os
+from argparse import ArgumentParser
 from pathlib import Path
 import sys
 import json
@@ -25,14 +26,15 @@ except Exception:
 
 
 class ForecastAtomosPhenom:
-    def __init__(self, address: str = "東京都品川区", duration: int = 30):
+    def __init__(self, address: str, duration):
         """コンストラクタ
 
-        Args:
-            address (str, optional): 気象情報を取得する地名
-                Defaults to "東京都品川区".
-            duration (int, optional): 気象情報を設定した時間(<48時間後)まで
-                表示する Defaults to 30.
+        Parameters
+        ----------
+        address : str
+            気象情報を取得する地名
+        duration : int
+            気象情報を設定した時間(<48時間後)まで表示する
         """
         # 環境変数
         self.user_id = os.environ["USER_ID"]
@@ -59,8 +61,10 @@ class ForecastAtomosPhenom:
     def make_linebot_messages(self) -> List[Any]:
         """Botが送信するメッセージ全体を作成
 
-        Returns:
-            List[Any]: Botが送信するメッセージで、画像とテキストを含む
+        Returns
+        -------
+        List[Any]
+            Botが送信するメッセージで、画像とテキストを含む
         """
         # 取得したデータから必要な情報を抽出
         r = self.res["hourly"]
@@ -101,8 +105,10 @@ class ForecastAtomosPhenom:
     def get_forecast(self) -> Dict[str, Any]:
         """天気予報をOpenWeathermap.orgから取得
 
-        Returns:
-            res (Dict[str, Any]): 取得したjsonファイル
+        Returns
+        -------
+        Dict[str, Any]
+            取得したjsonファイル
         """
         # URL
         url = "http://api.openweathermap.org/data/2.5/onecall"
@@ -213,8 +219,10 @@ class ForecastAtomosPhenom:
 
         最高・最低気温、気圧変動の時間帯をテキストでも表示する
 
-        Returns:
-            str: LineBotが送信するメッセージのテキスト部分
+        Returns
+        -------
+        str
+            LineBotが送信するメッセージのテキスト部分
         """
 
         # 気圧変動が大きい時間のリストの中で値が連続しているものをグループ化し、
@@ -284,12 +292,17 @@ class ForecastAtomosPhenom:
     def _validate(cur: datetime.datetime, pre: datetime.datetime) -> bool:
         """今の値が前の値と連続しているかどうか判別
 
-        Args:
-            cur (datetime.datetime): 現在の値
-            pre (datetime.datetime): 1つ前のインデックスの値
+        Parameters
+        ----------
+        cur : datetime.datetime
+            現在の値
+        pre : datetime.datetime
+            1つ前のインデックスの値
 
-        Returns:
-            bool: 連続しているかどうか
+        Returns
+        -------
+        bool
+            連続しているかどうか
         """
         return cur == (pre + datetime.timedelta(seconds=3600))
 
@@ -300,11 +313,15 @@ class ForecastAtomosPhenom:
         OpenWeathermap.orgから取得したデータの日時がタイムスタンプで得られるため、
         変換が必要となる
 
-        Args:
-            res (Dict[str, Any]): 取得したjsonファイル
+        Parameters
+        ----------
+        res : Dict[str, Any]
+            取得したjsonファイル
 
-        Returns:
-            Dict[str, Any]: 日時の型を変換したjsonファイル
+        Returns
+        -------
+        Dict[str, Any]
+            日時の型を変換したjsonファイル
         """
         for idx in range(len(res["hourly"])):
             res["hourly"][idx]["dt"] = dt.fromtimestamp(res["hourly"][idx]["dt"])
@@ -321,12 +338,17 @@ class ForecastAtomosPhenom:
         ピックアップし、更にその1時間後, 2時間後,...の気圧変動も確認して気圧変動が
         一方向に大きい時間帯がどこからどこまで続いているのか算出する
 
-        Args:
-            dates (List[datetime.datetime]): 取得した気象情報の日時データ
-            atomos_phenomena (List[int]): 取得した気象情報の気圧データ
+        Parameters
+        ----------
+        dates : List[datetime.datetime]
+            取得した気象情報の日時データ
+        atomos_phenomena : List[int]
+            取得した気象情報の気圧データ
 
-        Returns:
-            List[datetime.datetime]: 気圧が大きめに変動する時間のリスト
+        Returns
+        -------
+        List[datetime.datetime]
+            気圧が大きめに変動する時間のリスト
         """
         alarming = []
         for idx in range(len(atomos_phenomena) - 3):
@@ -347,9 +369,28 @@ class ForecastAtomosPhenom:
         return alarming_dates
 
 
-if __name__ == "__main__":
+def main() -> None:
+    # Usage Messageの作成
+    arg_parser = ArgumentParser(
+        usage="Usage: python "
+        + __file__
+        + " [--address <address>] [--duration <duration>] [--help]",
+    )
+
+    # 気象情報の表示対象とする地名を指定
+    arg_parser.add_argument(
+        "-a",
+        "--address",
+        type=str,
+        default="東京都千代田区千代田1-1",
+        help="address you want to get weather info",
+    )
+    # 何時間分の気象情報を表示するか指定
+    arg_parser.add_argument("-d", "--duration", type=int, default=30, help="duration")
+    options = arg_parser.parse_args()
+
     # 気象情報を取得
-    forecast = ForecastAtomosPhenom()
+    forecast = ForecastAtomosPhenom(address=options.address, duration=options.duration)
 
     # メッセージを作成
     messages = forecast.make_linebot_messages()
@@ -357,3 +398,7 @@ if __name__ == "__main__":
     # メッセージを送信
     line_bot_api = LineBotApi(os.environ["CHANNEL_ACCESS_TOKEN"])
     line_bot_api.push_message(forecast.user_id, messages=messages)
+
+
+if __name__ == "__main__":
+    main()

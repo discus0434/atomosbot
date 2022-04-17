@@ -4,12 +4,17 @@ import requests
 def upload_image_to_gyazo(save_path: str, api_key: str) -> requests.Response:
     """画像をgyazoにアップロードし、レスポンスを取得
 
-    Args:
-        save_path (str): 画像の保存先
-        api_key (str): 画像アップロードサービスのAPIキー
+    Parameters
+    ----------
+    save_path : str
+        画像の保存先
+    api_key : str
+        画像アップロードサービスのAPIキー
 
-    Returns:
-        requests.Response: 画像がアップロードされたURLの情報を含むレスポンス
+    Returns
+    -------
+    requests.Response
+        画像がアップロードされたURLの情報を含むレスポンス
     """
     # 作成したプロットをgyazoにアップロード
     with open(save_path, "rb") as f:
