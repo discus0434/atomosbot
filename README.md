@@ -24,7 +24,7 @@
 </h6>
 
 <p align="center">
-  <img src="docs/images/plot.jpeg" width=70%>
+  <img src="docs/images/plot.jpeg" width=80%>
   <br>
 </p>
 
